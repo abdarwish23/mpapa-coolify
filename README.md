@@ -1,86 +1,74 @@
 # mPAPA — Coolify Deployment
 
-**mPAPA** (my Personal Artificial Patent Attorney) is a fully local AI patent drafting system with prior art search across 5 databases.
+**mPAPA** (my Personal Artificial Patent Attorney) — AI patent drafting with prior art search across 5 databases.
 
 > "Your invention. Your machine. Your patent. Zero data leaks."
 
 ## Features
 
-- 🔍 **Prior Art Search** — Searches EPO, Google Patents, Google Scholar, ArXiv, PubMed simultaneously
+- 🔍 **Prior Art Search** — EPO, Google Patents, Google Scholar, ArXiv, PubMed
 - 💬 **AI Chat** — RAG-powered Q&A over your research
 - ⚡ **9-Step Workflow** — Disclosure → Claims → Prior Art → Novelty → Review → Market → Legal → Summary → Full Draft
-- 📄 **Export** — DOCX & LaTeX output
-- 🎭 **Personality Modes** — Critical, Neutral, Innovation-Friendly per agent
-- 🔒 **100% Local** — Your data never leaves your server
+- 📄 **Export** — DOCX & LaTeX
+- 🎭 **Personality Modes** — Critical, Neutral, Innovation-Friendly
 
 ## Quick Deploy on Coolify
 
-### 1. Deploy via Coolify
+### 1. Deploy
 
-1. **Create new project** in Coolify
-2. Choose **"Docker Compose"** as deployment type
-3. Point to this repository
-4. **Deploy!**
+1. **New Project → Docker Compose**
+2. URL: `https://github.com/abdarwish23/mpapa-coolify`
+3. Set **Port** to `8080`
+4. Set environment variable `OPENROUTER_API_KEY`
+5. **Deploy!**
 
-### 2. Pull an LLM Model
-
-After deployment, connect to the Ollama container and pull a model:
-
-```bash
-# Connect to the Ollama container
-docker exec -it mpapa-ollama ollama pull gemma2:2b
-
-# Or for better quality (needs more RAM):
-docker exec -it mpapa-ollama ollama pull llama3.1:8b
-```
-
-### 3. Access mPAPA
+### 2. Access
 
 ```
 http://your-coolify-domain:8080/
 ```
 
-## ⚠️ GPU Warning
+## LLM Models (via OpenRouter)
 
-Without a GPU, LLM inference will be **very slow**. Options:
+Default: **Gemini 2.5 Flash** — great balance of quality and cost.
 
-| Option | Speed | Cost |
-|---|---|---|
-| **Bundled Ollama (no GPU)** | 🐌 Slow | Free |
-| **External LM Studio (your PC)** | 🚀 Fast | Free |
-| **External Ollama (GPU server)** | 🚀 Fast | Free |
-| **Cloud API (OpenAI, etc.)** | 🚀 Fast | Paid |
+| Model | Input/1M | Output/1M | Quality | Best For |
+|---|---|---|---|---|
+| `google/gemini-2.5-flash-lite` | $0.10 | $0.40 | ⭐⭐ | Budget drafts |
+| `meta-llama/llama-4-scout` | $0.10 | $0.30 | ⭐⭐ | Cheapest option |
+| `deepseek/deepseek-chat-v3` | $0.20 | $0.77 | ⭐⭐⭐ | Best value |
+| `google/gemini-2.5-flash` | $0.30 | $2.50 | ⭐⭐⭐⭐ | **Recommended** |
+| `openai/gpt-4.1-mini` | $0.40 | $1.60 | ⭐⭐⭐⭐ | Best OpenAI value |
+| `anthropic/claude-sonnet-4` | $3.00 | $15.00 | ⭐⭐⭐⭐⭐ | Best quality |
 
-To use an external LLM backend, set `PATENT_LM_STUDIO_BASE_URL` in Coolify:
-- LM Studio: `http://your-pc-ip:1234/v1`
-- Ollama: `http://your-server:11434/v1`
-- OpenAI: `https://api.openai.com/v1` (set `PATENT_LM_STUDIO_API_KEY` too)
+Change models in Coolify env vars:
+```
+PATENT_MODEL_DISCLOSURE=deepseek/deepseek-chat-v3
+PATENT_MODEL_CLAIMS=deepseek/deepseek-chat-v3
+...
+```
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `PATENT_LM_STUDIO_BASE_URL` | `http://ollama:11434/v1` | LLM API endpoint |
-| `PATENT_LM_STUDIO_API_KEY` | `not-needed` | API key (for cloud providers) |
-| `PATENT_MODEL_*` | `default` | Model names per agent task |
-| `PATENT_EMBEDDING_MODEL_NAME` | `text-embedding-nomic-embed-text-v1.5` | Embedding model |
-| `PATENT_EPO_OPS_KEY` | (empty) | EPO API key (optional) |
-| `PATENT_EPO_OPS_SECRET` | (empty) | EPO API secret (optional) |
-| `MPAPA_PORT` | `8080` | Web UI port |
-| `PATENT_LOG_LEVEL` | `INFO` | Logging level |
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `OPENROUTER_API_KEY` | ✅ | — | Your OpenRouter API key |
+| `PATENT_MODEL_*` | ❌ | `google/gemini-2.5-flash` | Model per agent task |
+| `MPAPA_PORT` | ❌ | `8080` | Web UI port |
+| `PATENT_EPO_OPS_KEY` | ❌ | — | EPO API key (optional) |
 
 ## Architecture
 
 ```
 ┌──────────────┐     ┌──────────────┐
-│   mPAPA      │────▶│   Ollama     │
-│  (NiceGUI)   │     │  (LLM)       │
-│   Port 8080  │     │  Port 11434  │
-└──────┬───────┘     └──────────────┘
+│   mPAPA      │────▶│  OpenRouter   │──▶ LLM
+│  (NiceGUI)   │     │  (API)        │
+│   Port 8080  │     └──────────────┘
+└──────┬───────┘
        │
        ▼
 ┌──────────────┐
-│   SQLite     │  ← Persists all data
+│   SQLite     │  ← All data persisted
 │   + PDFs     │
 └──────────────┘
        │
@@ -94,6 +82,5 @@ To use an external LLM backend, set `PATENT_LM_STUDIO_BASE_URL` in Coolify:
 ## Links
 
 - [mPAPA GitHub](https://github.com/hapi-ds/mPAPA)
-- [Ollama](https://ollama.ai/)
-- [LM Studio](https://lmstudio.ai/)
+- [OpenRouter](https://openrouter.ai/)
 - [EPO/OPS Registration](https://developers.epo.org/)

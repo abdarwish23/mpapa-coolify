@@ -4,16 +4,7 @@
 # mPAPA: my Personal Artificial Patent Attorney
 # AI-powered patent drafting with prior art search
 #
-# Deploy this stack via Coolify:
-#   1. Create new project → "Docker Compose"
-#   2. Point to this repository
-#   3. Set PATENT_LM_STUDIO_BASE_URL (or use default Ollama)
-#   4. Deploy!
-#
-# LLM Backend Options:
-#   A) Use bundled Ollama (default) — needs GPU or will be slow
-#   B) Point to external LM Studio/Ollama — set PATENT_LM_STUDIO_BASE_URL
-#   C) Use cloud API — set PATENT_LM_STUDIO_BASE_URL to OpenAI-compatible endpoint
+# Uses OpenRouter as LLM provider (cheap, 300+ models)
 # ===========================================
 
 version: "3.8"
@@ -31,19 +22,19 @@ services:
     ports:
       - "${MPAPA_PORT:-8080}:8080"
     environment:
-      # LLM Backend (default: Ollama in same stack)
-      - PATENT_LM_STUDIO_BASE_URL=${PATENT_LM_STUDIO_BASE_URL:-http://ollama:11434/v1}
-      - PATENT_LM_STUDIO_API_KEY=${PATENT_LM_STUDIO_API_KEY:-not-needed}
+      # OpenRouter LLM Backend
+      - PATENT_LM_STUDIO_BASE_URL=https://openrouter.ai/api/v1
+      - PATENT_LM_STUDIO_API_KEY=${OPENROUTER_API_KEY}
 
-      # Model assignments
-      - PATENT_MODEL_DISCLOSURE=${PATENT_MODEL_DISCLOSURE:-default}
-      - PATENT_MODEL_SEARCH=${PATENT_MODEL_SEARCH:-default}
-      - PATENT_MODEL_CLAIMS=${PATENT_MODEL_CLAIMS:-default}
-      - PATENT_MODEL_DESCRIPTION=${PATENT_MODEL_DESCRIPTION:-default}
-      - PATENT_MODEL_REVIEW=${PATENT_MODEL_REVIEW:-default}
-      - PATENT_MODEL_CHAT=${PATENT_MODEL_CHAT:-default}
+      # Model assignments (using cheap, capable models)
+      - PATENT_MODEL_DISCLOSURE=${PATENT_MODEL_DISCLOSURE:-google/gemini-2.5-flash}
+      - PATENT_MODEL_SEARCH=${PATENT_MODEL_SEARCH:-google/gemini-2.5-flash}
+      - PATENT_MODEL_CLAIMS=${PATENT_MODEL_CLAIMS:-google/gemini-2.5-flash}
+      - PATENT_MODEL_DESCRIPTION=${PATENT_MODEL_DESCRIPTION:-google/gemini-2.5-flash}
+      - PATENT_MODEL_REVIEW=${PATENT_MODEL_REVIEW:-google/gemini-2.5-flash}
+      - PATENT_MODEL_CHAT=${PATENT_MODEL_CHAT:-google/gemini-2.5-flash}
 
-      # Embedding model
+      # Embedding model (OpenRouter doesn't serve embeddings — use a free local fallback)
       - PATENT_EMBEDDING_MODEL_NAME=${PATENT_EMBEDDING_MODEL_NAME:-text-embedding-nomic-embed-text-v1.5}
 
       # Web UI
@@ -54,45 +45,20 @@ services:
       - PATENT_SEARCH_MAX_RESULTS_PER_SOURCE=${PATENT_SEARCH_MAX_RESULTS_PER_SOURCE:-10}
       - PATENT_SEARCH_REQUEST_DELAY_SECONDS=${PATENT_SEARCH_REQUEST_DELAY_SECONDS:-3.0}
 
-      # EPO/OPS (optional — for patent database access)
+      # EPO/OPS (optional)
       - PATENT_EPO_OPS_KEY=${PATENT_EPO_OPS_KEY:-}
       - PATENT_EPO_OPS_SECRET=${PATENT_EPO_OPS_SECRET:-}
 
       # Logging
       - PATENT_LOG_LEVEL=${PATENT_LOG_LEVEL:-INFO}
 
-      # Database & storage paths (inside container)
+      # Database & storage
       - PATENT_DATABASE_PATH=data/patent_system.db
       - PATENT_PDF_DOWNLOAD_DIR=data/pdfs
       - PATENT_LOG_FILE_PATH=logs/patent_system.log
     volumes:
       - mpapa_data:/app/data
       - mpapa_logs:/app/logs
-    depends_on:
-      ollama:
-        condition: service_started
-    networks:
-      - mpapa_net
-
-  # -------------------------------------------
-  # Ollama — Local LLM Server
-  # -------------------------------------------
-  # NOTE: Without a GPU, LLM inference will be VERY slow.
-  # For production use, consider:
-  #   - Running Ollama on a GPU-enabled server
-  #   - Using LM Studio on your local machine
-  #   - Using a cloud API (OpenAI, Anthropic, etc.)
-  # -------------------------------------------
-  ollama:
-    image: ollama/ollama:latest
-    container_name: mpapa-ollama
-    restart: unless-stopped
-    ports:
-      - "${OLLAMA_PORT:-11434}:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    environment:
-      - OLLAMA_HOST=0.0.0.0
     networks:
       - mpapa_net
 
@@ -103,8 +69,6 @@ volumes:
   mpapa_data:
     driver: local
   mpapa_logs:
-    driver: local
-  ollama_data:
     driver: local
 
 # -------------------------------------------
