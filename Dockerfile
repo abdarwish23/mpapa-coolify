@@ -15,6 +15,7 @@ LABEL description="mPAPA — AI Patent Drafting System"
 # -------------------------------------------
 RUN apt-get update && apt-get install --yes --no-install-recommends \
     curl \
+    git \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -24,14 +25,20 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
 RUN pip install --no-cache-dir uv
 
 # -------------------------------------------
-# 3. Set working directory
+# 3. Clone mPAPA source from GitHub
 # -------------------------------------------
-WORKDIR /app
+WORKDIR /tmp
+RUN git clone --depth 1 https://github.com/hapi-ds/mPAPA.git mPAPA-src
 
 # -------------------------------------------
-# 4. Copy dependency files first (for caching)
+# 4. Set working directory and copy source
 # -------------------------------------------
-COPY pyproject.toml uv.lock ./
+WORKDIR /app
+RUN cp /tmp/mPAPA-src/pyproject.toml . && \
+    cp /tmp/mPAPA-src/uv.lock . && \
+    cp -r /tmp/mPAPA-src/src . && \
+    cp -r /tmp/mPAPA-src/domain_profiles . && \
+    rm -rf /tmp/mPAPA-src
 
 # -------------------------------------------
 # 5. Install dependencies (no dev deps)
@@ -39,39 +46,33 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
 # -------------------------------------------
-# 6. Copy source code and data
-# -------------------------------------------
-COPY src/ src/
-COPY domain_profiles/ domain_profiles/
-
-# -------------------------------------------
-# 7. Install the project itself
+# 6. Install the project itself
 # -------------------------------------------
 RUN uv sync --frozen --no-dev
 
 # -------------------------------------------
-# 8. Create runtime directories
+# 7. Create runtime directories
 # -------------------------------------------
 RUN mkdir -p /app/data /app/data/pdfs /app/logs
 
 # -------------------------------------------
-# 9. Copy entrypoint script
+# 8. Copy entrypoint script
 # -------------------------------------------
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # -------------------------------------------
-# 10. Expose NiceGUI port
+# 9. Expose NiceGUI port
 # -------------------------------------------
 EXPOSE 8080
 
 # -------------------------------------------
-# 11. Health check
+# 10. Health check
 # -------------------------------------------
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD curl -f http://localhost:8080/ || exit 1
 
 # -------------------------------------------
-# 12. Entrypoint
+# 11. Entrypoint
 # -------------------------------------------
 ENTRYPOINT ["/entrypoint.sh"]
