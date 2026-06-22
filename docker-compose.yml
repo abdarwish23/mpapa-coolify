@@ -27,12 +27,12 @@ services:
       - PATENT_LM_STUDIO_API_KEY=${OPENROUTER_API_KEY}
 
       # Model assignments (using cheap, capable models)
-      - PATENT_MODEL_DISCLOSURE=${PATENT_MODEL_DISCLOSURE:-google/gemini-2.5-flash}
-      - PATENT_MODEL_SEARCH=${PATENT_MODEL_SEARCH:-google/gemini-2.5-flash}
-      - PATENT_MODEL_CLAIMS=${PATENT_MODEL_CLAIMS:-google/gemini-2.5-flash}
-      - PATENT_MODEL_DESCRIPTION=${PATENT_MODEL_DESCRIPTION:-google/gemini-2.5-flash}
-      - PATENT_MODEL_REVIEW=${PATENT_MODEL_REVIEW:-google/gemini-2.5-flash}
-      - PATENT_MODEL_CHAT=${PATENT_MODEL_CHAT:-google/gemini-2.5-flash}
+      - PATENT_MODEL_DISCLOSURE=${PATENT_MODEL_DISCLOSURE:-minimax/minimax-m3}
+      - PATENT_MODEL_SEARCH=${PATENT_MODEL_SEARCH:-minimax/minimax-m3}
+      - PATENT_MODEL_CLAIMS=${PATENT_MODEL_CLAIMS:-minimax/minimax-m3}
+      - PATENT_MODEL_DESCRIPTION=${PATENT_MODEL_DESCRIPTION:-minimax/minimax-m3}
+      - PATENT_MODEL_REVIEW=${PATENT_MODEL_REVIEW:-minimax/minimax-m3}
+      - PATENT_MODEL_CHAT=${PATENT_MODEL_CHAT:-minimax/minimax-m3}
 
       # Embedding model (OpenRouter doesn't serve embeddings — use a free local fallback)
       - PATENT_EMBEDDING_MODEL_NAME=${PATENT_EMBEDDING_MODEL_NAME:-text-embedding-nomic-embed-text-v1.5}

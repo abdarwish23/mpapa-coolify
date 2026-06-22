@@ -30,21 +30,21 @@ http://your-coolify-domain:8080/
 
 ## LLM Models (via OpenRouter)
 
-Default: **Gemini 2.5 Flash** — great balance of quality and cost.
+Default: **MiniMax M3** — 1M context, great quality at $0.30/M input.
 
-| Model | Input/1M | Output/1M | Quality | Best For |
+| Model | Input/1M | Output/1M | Context | Best For |
 |---|---|---|---|---|
-| `google/gemini-2.5-flash-lite` | $0.10 | $0.40 | ⭐⭐ | Budget drafts |
-| `meta-llama/llama-4-scout` | $0.10 | $0.30 | ⭐⭐ | Cheapest option |
-| `deepseek/deepseek-chat-v3` | $0.20 | $0.77 | ⭐⭐⭐ | Best value |
-| `google/gemini-2.5-flash` | $0.30 | $2.50 | ⭐⭐⭐⭐ | **Recommended** |
-| `openai/gpt-4.1-mini` | $0.40 | $1.60 | ⭐⭐⭐⭐ | Best OpenAI value |
-| `anthropic/claude-sonnet-4` | $3.00 | $15.00 | ⭐⭐⭐⭐⭐ | Best quality |
+| `nvidia/nemotron-3-super` | $0.09 | $0.45 | 1M | Ultra budget |
+| `deepseek/deepseek-v4-flash` | $0.098 | $0.40 | — | Budget king |
+| `stepfun/step-3.7-flash` | $0.20 | $0.80 | 256K | Fast & cheap |
+| `minimax/minimax-m3` | $0.30 | $1.20 | 1M | **Recommended** |
+| `qwen/qwen3.7-plus` | $0.40 | $1.60 | 1M | Best value |
+| `anthropic/claude-sonnet-4.6` | $3.00 | $15.00 | — | Premium quality |
 
 Change models in Coolify env vars:
 ```
-PATENT_MODEL_DISCLOSURE=deepseek/deepseek-chat-v3
-PATENT_MODEL_CLAIMS=deepseek/deepseek-chat-v3
+PATENT_MODEL_DISCLOSURE=qwen/qwen3.7-plus
+PATENT_MODEL_CLAIMS=anthropic/claude-sonnet-4.6
 ...
 ```
 
