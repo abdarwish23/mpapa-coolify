@@ -36,6 +36,7 @@ RUN git clone --depth 1 https://github.com/hapi-ds/mPAPA.git mPAPA-src
 WORKDIR /app
 RUN cp /tmp/mPAPA-src/pyproject.toml . && \
     cp /tmp/mPAPA-src/uv.lock . && \
+    cp /tmp/mPAPA-src/README.md . && \
     cp -r /tmp/mPAPA-src/src . && \
     cp -r /tmp/mPAPA-src/domain_profiles . && \
     rm -rf /tmp/mPAPA-src
