@@ -44,8 +44,8 @@ RUN cp /tmp/mPAPA-src/pyproject.toml . && \
 # -------------------------------------------
 # 5. Apply patches
 # -------------------------------------------
-COPY fix-openrouter.patch /app/
-RUN patch -p1 < fix-openrouter.patch && rm fix-openrouter.patch
+COPY patch_openrouter.py /app/
+RUN python3 patch_openrouter.py && rm patch_openrouter.py
 
 # -------------------------------------------
 # 6. Install dependencies (no dev deps)
