@@ -42,7 +42,13 @@ RUN cp /tmp/mPAPA-src/pyproject.toml . && \
     rm -rf /tmp/mPAPA-src
 
 # -------------------------------------------
-# 5. Install dependencies (no dev deps)
+# 5. Apply patches
+# -------------------------------------------
+COPY fix-openrouter.patch /app/
+RUN patch -p1 < fix-openrouter.patch && rm fix-openrouter.patch
+
+# -------------------------------------------
+# 6. Install dependencies (no dev deps)
 # -------------------------------------------
 RUN uv sync --frozen --no-dev --no-install-project
 
